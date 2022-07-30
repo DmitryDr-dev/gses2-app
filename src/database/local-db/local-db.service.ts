@@ -53,6 +53,10 @@ export class LocalDbService implements OnApplicationBootstrap {
     try {
       const data = await this.dbStorageService.readFile(fileName);
       const emails = await this.dbBinaryTreeService.getAllValues(data);
+      if (!emails) {
+        this.logger.warn(`Email list is empty`);
+        return null;
+      }
       return emails;
     } catch (error) {
       this.logger.error('Error occurred while reading file:', error.message);
