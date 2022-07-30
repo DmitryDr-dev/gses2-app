@@ -35,13 +35,6 @@ export class SubscriptionController {
   @UseFilters(new HttpExceptionFilter())
   async sendEmails(@Res({ passthrough: true }) res: Response) {
     const result = await this.subscriptionService.sendEmails();
-    console.log(result);
-    if (result === null) {
-      throw new BadRequestException();
-    } else if (result.resolved.length === 0) {
-      throw new BadRequestException();
-    } else {
-      res.status(HttpStatus.OK);
-    }
+    res.status(HttpStatus.OK);
   }
 }
