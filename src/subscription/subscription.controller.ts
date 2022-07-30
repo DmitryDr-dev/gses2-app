@@ -7,7 +7,7 @@ import {
   Res,
   UseFilters,
 } from '@nestjs/common';
-import e, { Response } from 'express';
+import { Response } from 'express';
 import { HttpExceptionFilter } from 'src/common/filters';
 import { SubscribeEmailDto } from './dto';
 import { SubscriptionService } from './subscription.service';
