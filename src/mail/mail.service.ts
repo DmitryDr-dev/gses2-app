@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
 import { join } from 'path';
-import { IExchangeRate } from 'src/exchange-api/interfaces/exchange-rate.interface';
+import { IExchangeRate } from 'src/subscription/interfaces';
 
 @Injectable()
 export class MailService {
