@@ -8,7 +8,7 @@ export class DbStorageService {
   private localDbFolder: string;
 
   constructor() {
-    this.localDbFolder = path.join(__dirname, '../db');
+    this.localDbFolder = path.join(__dirname, '../../db');
   }
 
   async doesDbFileExist(fileName: string) {
