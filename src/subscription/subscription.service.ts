@@ -3,6 +3,8 @@ import { LocalDbName } from 'src/common/constants';
 import { LocalDbService } from 'src/database/local-db/local-db.service';
 import { ExchangeApiService } from 'src/exchange-api/exchange-api.service';
 import { MailService } from 'src/mail/mail.service';
+import { SubscriptionMapper } from './map';
+import { IExchangeRate } from './interfaces';
 
 @Injectable()
 export class SubscriptionService {
@@ -40,36 +42,50 @@ export class SubscriptionService {
         return null;
       }
 
-      const exchangeMap = {
-        sourceCurrency: exchangeRate.query.from,
-        targetCurrency: exchangeRate.query.to,
-        sourceAmount: exchangeRate.query.amount,
-        targetAmount: exchangeRate.info.rate,
-      };
+      const exchangeMap = SubscriptionMapper.toSendEmailsDto(exchangeRate);
 
-      const responses: Record<string, string[]> = {
-        resolved: [],
-        rejected: [],
-      };
+      const result = await this.massMailer(
+        emails as Array<string>,
+        exchangeMap,
+      );
 
-      emails.map(async (email: string) => {
-        const data = await this.mailService.sendExchangeRateEmail(
-          email,
-          exchangeMap,
-        );
-
-        if (!data) {
-          responses.rejected.push(email);
-        } else {
-          responses.resolved.push(email);
-        }
-      });
-
-      return true;
+      return result;
     } catch (error) {
       this.logger.error(
-        `Error occurred while creating new contact': ${error.message}`,
+        `Error occurred while sending emails: ${error.message}`,
       );
+      return null;
+    }
+  }
+
+  public async massMailer(emails: Array<string>, exchangeMap: IExchangeRate) {
+    const responses: Record<string, string[]> = {
+      resolved: [],
+      rejected: [],
+    };
+
+    try {
+      await Promise.all(
+        emails.map(async (email: string) => {
+          const data = await this.mailService.sendExchangeRateEmail(
+            email,
+            exchangeMap,
+          );
+
+          if (!data) {
+            responses.rejected.push(email);
+          } else {
+            responses.resolved.push(email);
+          }
+        }),
+      );
+
+      return responses;
+    } catch (error) {
+      this.logger.error(
+        `Error occurred while sending emails: ${error.message}`,
+      );
+      return null;
     }
   }
 }
