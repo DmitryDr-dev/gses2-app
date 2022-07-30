@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ExchangeApiModule } from './exchange-api/exchange-api.module';
 import { RateModule } from './rate/rate.module';
+import { DbBinaryTreeModule } from './database/db-binary-tree/db-binary-tree.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { RateModule } from './rate/rate.module';
     }),
     ExchangeApiModule,
     RateModule,
+    DbBinaryTreeModule,
   ],
   controllers: [],
   providers: [],
