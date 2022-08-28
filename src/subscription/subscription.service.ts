@@ -42,45 +42,14 @@ export class SubscriptionService {
         return null;
       }
 
-      const exchangeMap = SubscriptionMapper.toSendEmailsDto(exchangeRate);
+      const exchangeMap: IExchangeRate =
+        SubscriptionMapper.toSendEmailsDto(exchangeRate);
 
-      const result = await this.massMailer(
-        emails as Array<string>,
-        exchangeMap,
-      );
+      emails.map(async (email: string) => {
+        await this.mailService.sendExchangeRateEmail(email, exchangeMap);
+      });
 
-      return result;
-    } catch (error) {
-      this.logger.error(
-        `Error occurred while sending emails: ${error.message}`,
-      );
-      return null;
-    }
-  }
-
-  public async massMailer(emails: Array<string>, exchangeMap: IExchangeRate) {
-    const responses: Record<string, string[]> = {
-      resolved: [],
-      rejected: [],
-    };
-
-    try {
-      await Promise.all(
-        emails.map(async (email: string) => {
-          const data = await this.mailService.sendExchangeRateEmail(
-            email,
-            exchangeMap,
-          );
-
-          if (!data) {
-            responses.rejected.push(email);
-          } else {
-            responses.resolved.push(email);
-          }
-        }),
-      );
-
-      return responses;
+      return { emails, exchangeMap };
     } catch (error) {
       this.logger.error(
         `Error occurred while sending emails: ${error.message}`,

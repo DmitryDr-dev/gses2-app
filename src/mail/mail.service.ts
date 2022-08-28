@@ -1,32 +1,30 @@
+import { InjectQueue } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
-import { join } from 'path';
+import { Queue } from 'bull';
 import { IExchangeRate } from 'src/subscription/interfaces';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
 
-  constructor(private mailerService: MailerService) {}
+  constructor(@InjectQueue('mailQueue') private readonly mailQueue: Queue) {}
 
-  async sendExchangeRateEmail(email: string, data: IExchangeRate) {
-    const { sourceAmount, sourceCurrency, targetAmount, targetCurrency } = data;
-
+  public async sendExchangeRateEmail(
+    email: string,
+    exchangeRateData: IExchangeRate,
+  ) {
     try {
-      const data = await this.mailerService.sendMail({
-        to: email,
-        subject: 'Exchange Rate',
-        template: join('./exchange-rate'),
-        context: {
-          sourceAmount,
-          sourceCurrency,
-          targetAmount,
-          targetCurrency,
-        },
+      const result = await this.mailQueue.add('sendExchangeRateEmail', {
+        email,
+        exchangeRateData,
       });
-      return data ? data : null;
+
+      return result;
     } catch (error) {
-      this.logger.error(`Error occurred while sending email: ${error.message}`);
+      this.logger.error(
+        `Error occurred while sending email to ${email} because of ${error.message}`,
+      );
+      return null;
     }
   }
 }
