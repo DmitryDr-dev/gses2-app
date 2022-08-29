@@ -16,9 +16,7 @@ export class RateController {
   public async getExchangeRate() {
     const result = await this.rateService.getBtcToUah();
 
-    if (!result) {
-      throw new BadRequestException();
-    }
+    if (!result) throw new BadRequestException();
 
     return result;
   }

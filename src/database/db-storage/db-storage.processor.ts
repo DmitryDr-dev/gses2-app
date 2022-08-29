@@ -13,15 +13,18 @@ export class DbStorageProcessor {
     job: Job<{ folderPath: string; filePath: string; content: any }>,
   ) {
     const { folderPath, filePath, content } = job.data;
+
     try {
       await fs.mkdir(folderPath, { recursive: true });
       await fs.writeFile(filePath, JSON.stringify(content, null, 2));
+
       return content;
     } catch (error) {
       this.logger.error(
         'PROCESSOR Error occurred while updating file:',
         error.message,
       );
+
       return null;
     }
   }
@@ -31,9 +34,11 @@ export class DbStorageProcessor {
     try {
       const content = await fs.readFile(job.data.filePath, 'utf8');
       const data = JSON.parse(content);
+
       return data;
     } catch (error) {
       this.logger.error('Error occurred while reading file:', error.message);
+
       return null;
     }
   }

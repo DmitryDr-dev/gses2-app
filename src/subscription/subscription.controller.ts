@@ -24,9 +24,7 @@ export class SubscriptionController {
   ) {
     const result = await this.subscriptionService.addNewEmail(body.email);
 
-    if (!result) {
-      throw new BadRequestException();
-    }
+    if (!result) throw new BadRequestException();
 
     res.status(HttpStatus.OK);
   }
@@ -34,7 +32,8 @@ export class SubscriptionController {
   @Post('sendEmails')
   @UseFilters(new HttpExceptionFilter())
   async sendEmails(@Res({ passthrough: true }) res: Response) {
-    const result = await this.subscriptionService.sendEmails();
+    await this.subscriptionService.sendEmails();
+
     res.status(HttpStatus.OK);
   }
 }

@@ -3,8 +3,8 @@ import { LocalDbName } from 'src/common/constants';
 import { LocalDbService } from 'src/database/local-db/local-db.service';
 import { ExchangeApiService } from 'src/exchange-api/exchange-api.service';
 import { MailService } from 'src/mail/mail.service';
-import { SubscriptionMapper } from './map';
 import { IExchangeRate } from './interfaces';
+import { SubscriptionMapper } from './map';
 
 @Injectable()
 export class SubscriptionService {
@@ -19,28 +19,29 @@ export class SubscriptionService {
   public async addNewEmail(email: string) {
     try {
       const result = await this.localDbService.addOne(LocalDbName.Email, email);
+
       return result;
     } catch (error) {
       this.logger.error(
         `Error occurred while creating new contact': ${error.message}`,
       );
+
+      return null;
     }
   }
 
   public async sendEmails() {
     try {
       const emails = await this.localDbService.findAll(LocalDbName.Email);
-      if (!emails) {
-        return null;
-      }
+
+      if (!emails) return null;
 
       const exchangeRate = await this.exchangeApiService.getCurrencyConversion(
         'BTC',
         'UAH',
       );
-      if (!exchangeRate) {
-        return null;
-      }
+
+      if (!exchangeRate) return null;
 
       const exchangeMap: IExchangeRate =
         SubscriptionMapper.toSendEmailsDto(exchangeRate);
@@ -54,6 +55,7 @@ export class SubscriptionService {
       this.logger.error(
         `Error occurred while sending emails: ${error.message}`,
       );
+
       return null;
     }
   }

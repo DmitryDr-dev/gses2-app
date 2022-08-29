@@ -16,8 +16,6 @@ export class MailProcessor {
   public async sendExchangeRateEmail(
     job: Job<{ email: string; exchangeRateData: IExchangeRate }>,
   ) {
-    this.logger.log(`Sending exchange rate email to ${job.data.email}`);
-
     const {
       email,
       exchangeRateData: {
@@ -28,6 +26,7 @@ export class MailProcessor {
       },
     } = job.data;
 
+    this.logger.log(`Sending exchange rate email to ${email}`);
     try {
       const result = await this.mailerService.sendMail({
         to: email,
@@ -44,6 +43,8 @@ export class MailProcessor {
       return result;
     } catch (error) {
       this.logger.error(`Error occurred while sending email: ${error.message}`);
+
+      return null;
     }
   }
 }

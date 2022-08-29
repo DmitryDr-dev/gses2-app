@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
+import { LocalDbName } from 'src/common/constants';
 import { DbBinaryTreeService } from '../db-binary-tree/db-binary-tree.service';
 import { DbStorageService } from '../db-storage/db-storage.service';
-import { LocalDbName } from 'src/common/constants';
 
 @Injectable()
 export class LocalDbService implements OnApplicationBootstrap {
@@ -23,10 +23,10 @@ export class LocalDbService implements OnApplicationBootstrap {
         await this.dbStorageService.writeDbFile(LocalDbName.Email, newDb);
         return;
       }
+
       return;
     } catch (error) {
       this.logger.error('Error occurred while checking creating new DB file');
-      return;
     }
   }
 
@@ -34,11 +34,13 @@ export class LocalDbService implements OnApplicationBootstrap {
     try {
       const tree = await this.dbStorageService.readFile(fileName);
       const updatedTree = await this.dbBinaryTreeService.addValue(tree, value);
+
       if (!updatedTree) {
         this.logger.warn(` Value ${value} already exists in the database`);
         return null;
       }
       await this.dbStorageService.writeDbFile(fileName, updatedTree);
+
       return value;
     } catch (error) {
       this.logger.error(
@@ -53,10 +55,12 @@ export class LocalDbService implements OnApplicationBootstrap {
     try {
       const data = await this.dbStorageService.readFile(fileName);
       const emails = await this.dbBinaryTreeService.getAllValues(data);
+
       if (!emails) {
         this.logger.warn(`Email list is empty`);
         return null;
       }
+
       return emails;
     } catch (error) {
       this.logger.error('Error occurred while reading file:', error.message);
